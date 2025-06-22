@@ -37,39 +37,17 @@ const insertProductSchema = z.object({
   name: z.string().min(1, "Product name is required"),
   description: z.string().optional(),
   sku: z.string().optional(),
-  price: z
-    .number()
-    .positive("Price must be positive")
-    .or(z.string().transform((val) => parseFloat(val) || 0)),
-  stock: z
-    .number()
-    .int()
-    .nonnegative("Stock must be a positive number")
-    .or(z.string().transform((val) => parseInt(val) || 0)),
-  status: z.boolean().default(true),
-  cost: z
-    .number()
-    .nonnegative()
-    .optional()
-    .or(z.string().transform((val) => parseFloat(val) || 0)),
-  bulkPrice: z
-    .number()
-    .nonnegative()
-    .optional()
-    .or(z.string().transform((val) => parseFloat(val) || 0)),
-  taxRate: z
-    .number()
-    .nonnegative()
-    .optional()
-    .or(z.string().transform((val) => parseFloat(val) || 0)),
+  price: z.coerce.number().positive("Price must be positive"),
+  stock: z.coerce.number().int().nonnegative("Stock must be a positive number"),
+  status: z.boolean(),
+  cost: z.coerce.number().nonnegative().optional(),
+  bulkPrice: z.string().optional(),
+  taxRate: z.coerce.number().nonnegative().optional(),
 });
 
 const productVariantSchema = z.object({
   size: z.string(),
-  price: z
-    .number()
-    .positive()
-    .or(z.string().transform((val) => parseFloat(val) || 0)),
+  price: z.coerce.number().positive(),
 });
 
 const CreateProductSchema = z.object({
@@ -93,7 +71,9 @@ const mockCategories = [
 ];
 
 function CreateProduct() {
-  const form = useForm<z.infer<typeof CreateProductSchema>>({
+  type FormData = z.infer<typeof CreateProductSchema>;
+
+  const form = useForm<FormData>({
     resolver: zodResolver(CreateProductSchema),
     defaultValues: {
       product: {
@@ -104,7 +84,7 @@ function CreateProduct() {
         stock: 0,
         status: true,
         cost: 0,
-        bulkPrice: 0,
+        bulkPrice: "",
         taxRate: 0,
       },
       details: [],
@@ -118,7 +98,7 @@ function CreateProduct() {
   const [loading, setLoading] = useState(false);
   const [productImages, setProductImages] = useState<File[]>([]);
 
-  const onSubmit = async (data: z.infer<typeof CreateProductSchema>) => {
+  const onSubmit = async (data: FormData) => {
     setLoading(true);
 
     try {
@@ -185,7 +165,7 @@ function CreateProduct() {
               {/* Basic Information */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Basic Information</CardTitle>
+                  <CardTitle>상품 관련 정보</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -193,9 +173,12 @@ function CreateProduct() {
                     name="product.name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Product name</FormLabel>
+                        <FormLabel>상품 이름</FormLabel>
                         <FormControl>
-                          <Input placeholder="Product Name" {...field} />
+                          <Input
+                            placeholder="ex) 모란봉우리 밥그릇"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -207,9 +190,12 @@ function CreateProduct() {
                     name="product.sku"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Product code</FormLabel>
+                        <FormLabel>상품 간단 설명</FormLabel>
                         <FormControl>
-                          <Input placeholder="Product Code" {...field} />
+                          <Input
+                            placeholder="ex) 감각적이고 세련된 모란 디자인의 밥 그릇"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -221,10 +207,10 @@ function CreateProduct() {
                     name="product.description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Description</FormLabel>
+                        <FormLabel>상품 상세 설명</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Enter product description"
+                            placeholder="ex) 일상적인 식사부터 특별한 식사까지 다양한 용도로 사용할 수 있는 클래식한 디자인의 밥그릇 입니다. 깔끔한 디자인과 적절한 크기로 어떤 식사와도 잘 어울립니다."
                             className="min-h-[120px]"
                             {...field}
                           />
@@ -239,7 +225,7 @@ function CreateProduct() {
               {/* Pricing */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Pricing</CardTitle>
+                  <CardTitle>가격 및 사이즈 정보</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -247,10 +233,10 @@ function CreateProduct() {
                     name="product.price"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Price</FormLabel>
+                        <FormLabel>정가 가격</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <span className="absolute left-3 top-2.5">$</span>
+                            <span className="absolute left-3 top-1.5">₩</span>
                             <Input
                               className="pl-7"
                               placeholder="0.00"
@@ -268,13 +254,14 @@ function CreateProduct() {
                     name="product.cost"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Cost price</FormLabel>
+                        <FormLabel>적용할 할인율</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <span className="absolute left-3 top-2.5">$</span>
+                            <span className="absolute left-3 top-1.5">%</span>
                             <Input
-                              className="pl-7"
+                              className="pl-7 bg-gray-100 cursor-not-allowed"
                               placeholder="0.00"
+                              disabled
                               {...field}
                             />
                           </div>
@@ -284,64 +271,37 @@ function CreateProduct() {
                     )}
                   />
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4">
                     <FormField
                       control={form.control}
                       name="product.bulkPrice"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Bulk discount price</FormLabel>
+                          <FormLabel>사이즈 정보</FormLabel>
                           <FormControl>
-                            <div className="relative">
-                              <span className="absolute left-3 top-2.5">$</span>
-                              <Input
-                                className="pl-7"
-                                placeholder="0.00"
-                                {...field}
-                              />
-                            </div>
+                            <Textarea
+                              placeholder="ex) S: 100cm&#10;M: 105cm&#10;L: 110cm"
+                              className="min-h-[120px]"
+                              {...field}
+                              onChange={(e) => {
+                                // 엔터를 마크다운 줄바꿈으로 변환
+                                const value = e.target.value.replace(
+                                  /\n/g,
+                                  "  \n"
+                                );
+                                field.onChange(value);
+                              }}
+                            />
                           </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="product.taxRate"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Tax rate(%)</FormLabel>
-                          <FormControl>
-                            <Input placeholder="0" {...field} />
-                          </FormControl>
+                          <FormDescription>
+                            각 사이즈별 정보를 입력하세요. 엔터로 줄바꿈이
+                            가능합니다.
+                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Inventory */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Inventory</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <FormField
-                    control={form.control}
-                    name="product.stock"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Stock quantity</FormLabel>
-                        <FormControl>
-                          <Input placeholder="0" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </CardContent>
               </Card>
             </div>
@@ -487,7 +447,7 @@ function CreateProduct() {
               {/* Status Toggle */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Status</CardTitle>
+                  <CardTitle>상품 노출 여부</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <FormField
@@ -496,9 +456,9 @@ function CreateProduct() {
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between">
                         <div className="space-y-0.5">
-                          <FormLabel>Active</FormLabel>
+                          <FormLabel>상품 노출 활성화</FormLabel>
                           <FormDescription>
-                            Product will be visible to customers
+                            활성화 시 상품 목록에 노출됩니다.
                           </FormDescription>
                         </div>
                         <FormControl>
