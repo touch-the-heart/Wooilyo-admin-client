@@ -332,7 +332,7 @@ export type GetProductsResponses = {
      * The list of products with pagination
      */
     200: {
-        products: Array<{
+        data: Array<{
             id: number;
             name: string;
             subName: string;
@@ -341,6 +341,28 @@ export type GetProductsResponses = {
             isVisible: boolean;
             createdAt: string;
             updatedAt: string;
+            images: Array<{
+                url: string;
+                displayOrder: number;
+                type: string;
+            }>;
+            categories: Array<{
+                id: number;
+                productId: number;
+                categoryId: number;
+                category: {
+                    id: number;
+                    key: string;
+                    name: string;
+                    level: number;
+                    createdAt: string;
+                    parentId: number | null;
+                };
+            }>;
+            details: Array<{
+                size: string;
+                price: number;
+            }>;
         }>;
         pagination: {
             total: number;
@@ -510,6 +532,28 @@ export type GetProductsByIdResponses = {
         isVisible: boolean;
         createdAt: string;
         updatedAt: string;
+        images: Array<{
+            url: string;
+            displayOrder: number;
+            type: string;
+        }>;
+        categories: Array<{
+            id: number;
+            productId: number;
+            categoryId: number;
+            category: {
+                id: number;
+                key: string;
+                name: string;
+                level: number;
+                createdAt: string;
+                parentId: number | null;
+            };
+        }>;
+        details: Array<{
+            size: string;
+            price: number;
+        }>;
     };
 };
 

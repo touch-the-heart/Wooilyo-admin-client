@@ -71,16 +71,9 @@ export function Sidebar({ isOpen }: SidebarProps) {
         <SidebarItem
           icon={<Home className="h-5 w-5" />}
           title="Product"
-          href="/"
+          href="/product"
           isOpen={isOpen}
         />
-        <SidebarItem
-          icon={<CloudUpload className="h-5 w-5" />}
-          title="Upload"
-          href="/upload"
-          isOpen={isOpen}
-        />
-
         <SidebarItem
           icon={<Shapes className="h-5 w-5" />}
           title="Category"
