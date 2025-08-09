@@ -31,6 +31,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { ArrowLeft, Info, Plus, Trash2, Upload } from "lucide-react";
+import { getProducts, postImages, postProducts } from "@/client/sdk.gen";
 
 // Schema definitions
 const insertProductSchema = z.object({
@@ -100,18 +101,34 @@ function CreateProduct() {
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
-
+    const params = {
+      product: {
+        name: data.product.name,
+        subName: data.product.sku || "",
+        shortDescription: data.product.sku || "",
+        description: data.product.description || "",
+        isVisible: data.product.status,
+      },
+      details: [
+        {
+          size: data.product.bulkPrice || "",
+          price: data.product.price,
+        },
+      ],
+    };
     try {
       // Here you would normally upload images and submit the form to your API
       console.log("Submitted data:", data);
+      const result = await getProducts();
+      console.log(result);
+      const res = await postProducts({ body: params });
+      console.log(res);
 
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      alert("Product created successfully!");
-      // Navigate back or reset form
+      // await new Promise((resolve) => setTimeout(resolve, 1000));      // Navigate back or reset form
     } catch (error) {
       console.error("Error creating product:", error);
+      alert("Failed to create product. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -119,7 +136,9 @@ function CreateProduct() {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
+    console.log("FILES", files);
     if (!files) return;
+    // postImages({ body: files });
 
     // Convert FileList to array and limit to 5 images
     const newFiles = Array.from(files).slice(0, 5 - productImages.length);
@@ -133,6 +152,7 @@ function CreateProduct() {
 
     // Update form value
     const currentImages = form.getValues("images") || [];
+    console.log("CURIMages", currentImages);
     form.setValue("images", [...currentImages, ...newFiles]);
   };
 
