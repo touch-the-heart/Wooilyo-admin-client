@@ -12,7 +12,9 @@ import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -102,21 +104,35 @@ export function AddCategoryModal({
             </label>
             <Select
               value={parentId || "none"}
-              onValueChange={(value) =>
-                setParentId(value === "none" ? null : value)
-              }
+              onValueChange={(value) => {
+                console.log(value);
+                setParentId(value === "none" ? null : value);
+              }}
             >
               <SelectTrigger className="col-span-3">
-                <SelectValue placeholder="상위 카테고리 선택" />
+                <SelectValue placeholder="상위 카테고리 선택">
+                  {parentId && parentId !== "none"
+                    ? categoryParents.find((c) => c.id.toString() === parentId)
+                        ?.name
+                    : parentId === "none"
+                    ? "없음 (최상위 카테고리)"
+                    : "상위 카테고리 선택"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent side="bottom" className="max-h-100">
-                <SelectItem value="none">없음 (최상위 카테고리)</SelectItem>
-                {categoryParents.map((category) => (
-                  <SelectItem key={category.id} value={category.id.toString()}>
-                    {category.level > 1 ? "└─ " : ""}
-                    {category.name}
-                  </SelectItem>
-                ))}
+                <SelectGroup>
+                  <SelectLabel>Categories</SelectLabel>
+                  <SelectItem value="none">없음 (최상위 카테고리)</SelectItem>
+                  {categoryParents.map((category) => (
+                    <SelectItem
+                      key={category.id}
+                      value={category.id.toString()}
+                    >
+                      {category.level > 1 ? "└─ " : ""}
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
               </SelectContent>
             </Select>
           </div>
