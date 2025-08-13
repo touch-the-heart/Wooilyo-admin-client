@@ -16,6 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getCategories } from "@/client";
 import { buildCategoryTree } from "@/lib/category";
 import { Category, CategoryTreeItem } from "@/components/category/type";
+import { Container } from "@/components/layout/container";
 
 export const Route = createFileRoute("/category")({
   component: CategoryManagement,
@@ -72,7 +73,7 @@ function CategoryManagement() {
   }
 
   return (
-    <div className="p-6">
+    <Container>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">카테고리 관리</h1>
         <AddCategoryModal
@@ -126,6 +127,6 @@ function CategoryManagement() {
         onOpenChange={setIsDeleteModalOpen}
         category={currentCategory}
       />
-    </div>
+    </Container>
   );
 }

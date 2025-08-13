@@ -32,6 +32,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { ArrowLeft, Info, Plus, Trash2, Upload } from "lucide-react";
 import { getProducts, postImages, postProducts } from "@/client/sdk.gen";
+import { Container } from "@/components/layout";
 
 // Schema definitions
 const insertProductSchema = z.object({
@@ -166,7 +167,7 @@ function CreateProduct() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <Container>
       <div className="mb-6">
         <Link to="/">
           <Button variant="outline" className="mb-4">
@@ -494,17 +495,17 @@ function CreateProduct() {
               </Card>
             </div>
           </div>
-
-          <div className="flex justify-end gap-2">
-            <Link to="/">
-              <Button variant="outline">Cancel</Button>
-            </Link>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Creating..." : "Create Product"}
-            </Button>
-          </div>
         </form>
       </Form>
-    </div>
+
+      <div className="flex justify-end gap-2">
+        <Link to="/">
+          <Button variant="outline">Cancel</Button>
+        </Link>
+        <Button type="submit" disabled={loading}>
+          {loading ? "Creating..." : "Create Product"}
+        </Button>
+      </div>
+    </Container>
   );
 }
