@@ -63,15 +63,20 @@ export function CategorySection({ form, categories }: CategorySectionProps) {
   const renderCategoryTree = (items: CategoryTreeItem[]): React.ReactNode[] => {
     return items.map((category) => {
       const prefix = getCategoryIndentation(category);
+
+      // 자식 카테고리가 있는지 확인 (선택 가능 여부 결정)
+      const hasChildren = category.children && category.children.length > 0;
+
       return (
         <React.Fragment key={category.id}>
           <SelectItem
             value={category.id.toString()}
-            disabled={category.level === 1 || category.level === 2}
+            disabled={hasChildren} // 자식이 있는 카테고리는 선택 불가 (폴더 역할만 함)
           >
             {prefix}
             {category.name}
           </SelectItem>
+          {/* 자식 카테고리가 있으면 재귀적으로 렌더링 */}
           {category.children && renderCategoryTree(category.children)}
         </React.Fragment>
       );
