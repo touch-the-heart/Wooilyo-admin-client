@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -30,6 +30,21 @@ function getCategoryIndentation(category: Category) {
 }
 
 export function CategorySection({ form, categories }: CategorySectionProps) {
+  // 선택된 카테고리 ID를 추적하기 위한 상태 추가
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+
+  // 선택된 카테고리 이름을 찾는 함수
+  const getSelectedCategoryName = (categoryId: string): string => {
+    if (!categoryId) return "";
+
+    const flatCategories = flattenCategories(categories);
+    const selectedCategory = flatCategories.find(
+      (cat) => cat.id.toString() === categoryId
+    );
+
+    return selectedCategory ? selectedCategory.name : "";
+  };
+
   const findParentCategories = (selectedCategoryId: number): number[] => {
     const flatCategories = flattenCategories(categories);
     const result: number[] = [];
@@ -91,14 +106,19 @@ export function CategorySection({ form, categories }: CategorySectionProps) {
       <CardContent className="space-y-4">
         <Select
           defaultValue="1"
+          value={selectedCategoryId}
           onValueChange={(value) => {
+            setSelectedCategoryId(value);
             const selectedId = parseInt(value);
             const categoryHierarchy = findParentCategories(selectedId);
             form.setValue("categoryIds", categoryHierarchy);
           }}
         >
           <SelectTrigger className="w-[280px]">
-            <SelectValue placeholder="Select a category" />
+            <SelectValue placeholder="Select a category">
+              {/* 선택된 카테고리 이름만 표시 (들여쓰기 없이) */}
+              {getSelectedCategoryName(selectedCategoryId)}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent side="bottom" className="max-h-100">
             <SelectGroup>
