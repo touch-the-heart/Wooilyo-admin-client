@@ -1,5 +1,7 @@
-export const buildCategoryTree = (categories: any[]) => {
-  const rootCategories: any[] = categories
+import { Category, CategoryTreeItem } from "@/components/category/type";
+
+export const buildCategoryTree = (categories: Category[]) => {
+  const rootCategories: CategoryTreeItem[] = categories
     .filter((cat) => cat.level === 1)
     .map((cat) => ({ ...cat, children: [] }));
 
@@ -30,4 +32,26 @@ export const buildCategoryTree = (categories: any[]) => {
   });
 
   return rootCategories;
+};
+
+export const flattenCategories = (items: CategoryTreeItem[]): Category[] => {
+  const result: Category[] = [];
+
+  const flatten = (items: CategoryTreeItem[]) => {
+    items.forEach((item) => {
+      result.push({
+        id: item.id,
+        key: item.key,
+        name: item.name,
+        level: item.level,
+        parentId: item.parentId,
+      });
+      if (item.children) {
+        flatten(item.children);
+      }
+    });
+  };
+
+  flatten(items);
+  return result;
 };

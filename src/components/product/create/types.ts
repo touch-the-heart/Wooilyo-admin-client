@@ -28,10 +28,3 @@ export const CreateProductSchema = z.object({
 });
 
 export type FormData = z.infer<typeof CreateProductSchema>;
-
-// Mock data for demonstration
-export const mockCategories = [
-  { id: 1, name: "Clothing" },
-  { id: 2, name: "Accessories" },
-  { id: 3, name: "Footwear" },
-];

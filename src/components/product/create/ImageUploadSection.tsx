@@ -54,7 +54,7 @@ export function ImageUploadSection({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Product Image</CardTitle>
+        <CardTitle>도자기 이미지</CardTitle>
         <CardDescription>
           Choose a product photo or simply drag and drop up to 5 photos here.
         </CardDescription>

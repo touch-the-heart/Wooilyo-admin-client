@@ -1,0 +1,108 @@
+import React from "react";
+import { UseFormReturn } from "react-hook-form";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { FormData } from "./types";
+import { Category, CategoryTreeItem } from "@/components/category/type";
+import { flattenCategories } from "@/lib/category";
+
+interface CategorySectionProps {
+  form: UseFormReturn<FormData>;
+  categories: CategoryTreeItem[];
+}
+
+function getCategoryIndentation(category: Category) {
+  return category.level === 1 ? (
+    ""
+  ) : category.level === 2 ? (
+    "└─ "
+  ) : (
+    <>&nbsp; &nbsp; &nbsp; &nbsp; └─ </>
+  );
+}
+
+export function CategorySection({ form, categories }: CategorySectionProps) {
+  const findParentCategories = (selectedCategoryId: number): number[] => {
+    const flatCategories = flattenCategories(categories);
+    const result: number[] = [];
+    const selectedCategory = flatCategories.find(
+      (cat) => cat.id === selectedCategoryId
+    );
+
+    if (!selectedCategory) return result;
+
+    // 선택한 카테고리부터 시작
+    result.push(selectedCategory.id);
+
+    // 부모 카테고리들을 재귀적으로 찾기
+    const findParents = (category: Category) => {
+      if (category.parentId) {
+        const parent = flatCategories.find(
+          (cat) => cat.id === category.parentId
+        );
+        if (parent) {
+          result.unshift(parent.id); // 배열 앞쪽에 추가 (최상위부터 순서대로)
+          findParents(parent);
+        }
+      }
+    };
+
+    findParents(selectedCategory);
+    return result;
+  };
+
+  // 트리 구조를 재귀적으로 렌더링하는 함수
+  const renderCategoryTree = (items: CategoryTreeItem[]): React.ReactNode[] => {
+    return items.map((category) => {
+      const prefix = getCategoryIndentation(category);
+      return (
+        <React.Fragment key={category.id}>
+          <SelectItem
+            value={category.id.toString()}
+            disabled={category.level === 1 || category.level === 2}
+          >
+            {prefix}
+            {category.name}
+          </SelectItem>
+          {category.children && renderCategoryTree(category.children)}
+        </React.Fragment>
+      );
+    });
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>카테고리</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <Select
+          defaultValue="1"
+          onValueChange={(value) => {
+            const selectedId = parseInt(value);
+            const categoryHierarchy = findParentCategories(selectedId);
+            form.setValue("categoryIds", categoryHierarchy);
+          }}
+        >
+          <SelectTrigger className="w-[280px]">
+            <SelectValue placeholder="Select a category" />
+          </SelectTrigger>
+          <SelectContent side="bottom" className="max-h-100">
+            <SelectGroup>
+              <SelectLabel>Categories</SelectLabel>
+              {renderCategoryTree(categories)}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </CardContent>
+    </Card>
+  );
+}

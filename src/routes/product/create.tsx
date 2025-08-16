@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -8,10 +8,14 @@ import {
   BasicInfoSection,
   PricingSection,
   ImageUploadSection,
-  AttributeSection,
   StatusSection,
   useCreateProduct,
+  CategorySection,
 } from "@/components/product/create";
+import { getCategories } from "@/client";
+import { useQuery } from "@tanstack/react-query";
+import { CategoryTreeItem } from "@/components/category/type";
+import { buildCategoryTree } from "@/lib/category";
 
 export const Route = createFileRoute("/product/create")({
   component: CreateProduct,
@@ -20,6 +24,28 @@ export const Route = createFileRoute("/product/create")({
 function CreateProduct() {
   const { form, loading, productImages, setProductImages, onSubmit } =
     useCreateProduct();
+
+  const { data: categoriesData } = useQuery({
+    queryKey: ["categories"],
+    queryFn: () => getCategories(),
+  });
+
+  const [categories, setCategories] = useState<CategoryTreeItem[]>([]);
+  useEffect(() => {
+    if (categoriesData && categoriesData.data) {
+      const formattedCategories = categoriesData.data.map((cat: any) => ({
+        id: cat.id,
+        key: cat.key,
+        name: cat.name,
+        level: cat.level as 1 | 2 | 3,
+        parentId: cat.parentId,
+        expanded: false,
+      }));
+      const categoryTree = buildCategoryTree(formattedCategories);
+      console.log("Category Tree:", categoryTree);
+      setCategories(categoryTree);
+    }
+  }, [categoriesData]);
 
   return (
     <Container>
@@ -47,7 +73,7 @@ function CreateProduct() {
                 productImages={productImages}
                 setProductImages={setProductImages}
               />
-              <AttributeSection form={form} />
+              <CategorySection form={form} categories={categories} />
               <StatusSection form={form} />
             </SplitScreen.Right>
           </SplitScreen>
