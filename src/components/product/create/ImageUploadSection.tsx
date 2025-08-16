@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { UseFormReturn } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
 import {
   Card,
   CardContent,
@@ -9,11 +10,20 @@ import {
 } from "@/components/ui/card";
 import { Plus, Trash2, Upload } from "lucide-react";
 import { FormData } from "./types";
+import { postImages } from "@/client/sdk.gen";
 
 interface ImageUploadSectionProps {
   form: UseFormReturn<FormData>;
   productImages: File[];
   setProductImages: React.Dispatch<React.SetStateAction<File[]>>;
+}
+
+// 업로드된 이미지 정보 타입
+interface UploadedImage {
+  file: File;
+  url?: string;
+  isUploading: boolean;
+  error?: string;
 }
 
 export function ImageUploadSection({
@@ -25,27 +35,86 @@ export function ImageUploadSection({
   const [isDragOver, setIsDragOver] = useState(false);
   const [dragCounter, setDragCounter] = useState(0);
 
+  // 업로드된 이미지 상태 관리
+  const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
+
+  // 이미지 업로드 mutation
+  const uploadImageMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const response = await postImages({ body: { file } });
+      if (!response.data) {
+        throw new Error("Upload failed");
+      }
+      return response.data.filename;
+    },
+    onError: (error, file) => {
+      console.error("Image upload failed:", error);
+      setUploadedImages((prev) =>
+        prev.map((img) =>
+          img.file === file
+            ? { ...img, error: "업로드 실패", isUploading: false }
+            : img
+        )
+      );
+    },
+  });
+
   // 파일 처리 함수 (공통 로직)
   const processFiles = useCallback(
-    (files: FileList) => {
+    async (files: FileList) => {
       if (!files) return;
 
       // Convert FileList to array and limit to 5 images
-      const newFiles = Array.from(files).slice(0, 5 - productImages.length);
+      const newFiles = Array.from(files).slice(0, 5 - uploadedImages.length);
 
-      if (productImages.length + newFiles.length > 5) {
+      if (uploadedImages.length + newFiles.length > 5) {
         alert("최대 5장까지 업로드 가능합니다");
         return;
       }
 
+      // 새 이미지들을 업로드 상태로 추가
+      const newUploadedImages: UploadedImage[] = newFiles.map((file) => ({
+        file,
+        isUploading: true,
+      }));
+
+      setUploadedImages((prev) => [...prev, ...newUploadedImages]);
       setProductImages((prev) => [...prev, ...newFiles]);
 
-      // Update form value
-      const currentImages = form.getValues("images") || [];
-      console.log("CURIMages", currentImages);
-      form.setValue("images", [...currentImages, ...newFiles]);
+      // 각 파일을 개별적으로 업로드
+      const uploadPromises = newFiles.map(async (file) => {
+        try {
+          const filename = await uploadImageMutation.mutateAsync(file);
+
+          // 업로드 성공 시 상태 업데이트
+          setUploadedImages((prev) =>
+            prev.map((img) =>
+              img.file === file
+                ? { ...img, url: filename, isUploading: false }
+                : img
+            )
+          );
+
+          return filename;
+        } catch (error) {
+          // 에러는 mutation의 onError에서 처리됨
+          throw error;
+        }
+      });
+
+      // 모든 업로드 완료 후 폼 값 업데이트
+      try {
+        await Promise.allSettled(uploadPromises);
+        const successfulUploads = uploadedImages
+          .filter((img) => img.url && !img.isUploading)
+          .map((img) => img.url!);
+
+        form.setValue("images", successfulUploads);
+      } catch (error) {
+        console.error("Some uploads failed:", error);
+      }
     },
-    [productImages.length, setProductImages, form]
+    [uploadedImages.length, setProductImages, form, uploadImageMutation]
   );
 
   // 파일 업로드 핸들러 (기존)
@@ -118,11 +187,20 @@ export function ImageUploadSection({
 
   const removeImage = (index: number) => {
     const newImages = [...productImages];
-    newImages.splice(index, 1);
-    setProductImages(newImages);
+    const newUploadedImages = [...uploadedImages];
 
-    // Update form value
-    form.setValue("images", newImages);
+    newImages.splice(index, 1);
+    newUploadedImages.splice(index, 1);
+
+    setProductImages(newImages);
+    setUploadedImages(newUploadedImages);
+
+    // 폼 값 업데이트
+    const successfulUploads = newUploadedImages
+      .filter((img) => img.url && !img.isUploading)
+      .map((img) => img.url!);
+
+    form.setValue("images", successfulUploads);
   };
 
   return (
@@ -145,7 +223,7 @@ export function ImageUploadSection({
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
-          {productImages.length === 0 ? (
+          {uploadedImages.length === 0 ? (
             <>
               <div
                 className={`mx-auto w-12 h-12 flex items-center justify-center rounded-full mb-4 transition-colors duration-200 ${
@@ -184,23 +262,36 @@ export function ImageUploadSection({
             </>
           ) : (
             <div className="grid grid-cols-3 gap-4">
-              {productImages.map((img, idx) => (
+              {uploadedImages.map((img, idx) => (
                 <div key={idx} className="relative group">
                   <img
-                    src={URL.createObjectURL(img)}
+                    src={URL.createObjectURL(img.file)}
                     alt={`Product ${idx + 1}`}
-                    className="h-20 w-20 object-cover rounded"
+                    className={`h-20 w-20 object-cover rounded ${
+                      img.isUploading ? "opacity-50" : ""
+                    }`}
                   />
+                  {img.isUploading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 rounded">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                    </div>
+                  )}
+                  {img.error && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-red-500 bg-opacity-20 rounded">
+                      <span className="text-red-600 text-xs">오류</span>
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={() => removeImage(idx)}
                     className="absolute top-0 right-0 bg-white rounded-full p-1 shadow hidden group-hover:block"
+                    disabled={img.isUploading}
                   >
                     <Trash2 className="h-4 w-4 text-red-500" />
                   </button>
                 </div>
               ))}
-              {productImages.length < 5 && (
+              {uploadedImages.length < 5 && (
                 <label
                   htmlFor="add-more-images"
                   className="h-20 w-20 border-2 border-dashed rounded flex items-center justify-center cursor-pointer hover:border-gray-400 transition-colors"
