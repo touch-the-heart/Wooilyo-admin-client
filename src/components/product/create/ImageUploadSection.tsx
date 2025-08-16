@@ -34,7 +34,7 @@ export function ImageUploadSection({
       const newFiles = Array.from(files).slice(0, 5 - productImages.length);
 
       if (productImages.length + newFiles.length > 5) {
-        alert("Maximum 5 images allowed");
+        alert("최대 5장까지 업로드 가능합니다");
         return;
       }
 
@@ -102,7 +102,7 @@ export function ImageUploadSection({
         );
 
         if (imageFiles.length === 0) {
-          alert("Please drop only image files");
+          alert("이미지 파일만 드롭해주세요");
           return;
         }
 
@@ -130,7 +130,7 @@ export function ImageUploadSection({
       <CardHeader>
         <CardTitle>도자기 이미지</CardTitle>
         <CardDescription>
-          Choose a product photo or simply drag and drop up to 5 photos here.
+          상품 사진을 선택하거나 최대 5장까지 드래그앤드롭으로 추가하세요.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -161,15 +161,15 @@ export function ImageUploadSection({
               <div>
                 <p className="mb-1">
                   {isDragOver
-                    ? "Drop your images here!"
-                    : "Drop your image here, or"}
+                    ? "여기에 이미지를 놓으세요!"
+                    : "이미지를 여기에 놓거나"}
                 </p>
                 {!isDragOver && (
                   <label
                     htmlFor="file-upload"
                     className="text-blue-500 cursor-pointer hover:text-blue-700"
                   >
-                    Click to browse
+                    클릭하여 선택
                   </label>
                 )}
                 <input
@@ -220,8 +220,8 @@ export function ImageUploadSection({
           )}
         </div>
         <p className="text-sm text-gray-500 mt-2">
-          Image formats: .jpg, .jpeg, .png, preferred size: 1:1, file size is
-          restricted to a maximum of 500kb.
+          이미지 형식: .jpg, .jpeg, .png, 권장 크기: 1:1, 파일 크기는 최대
+          500kb로 제한됩니다.
         </p>
       </CardContent>
     </Card>
