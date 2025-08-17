@@ -42,7 +42,6 @@ function CreateProduct() {
         expanded: false,
       }));
       const categoryTree = buildCategoryTree(formattedCategories);
-      console.log("Category Tree:", categoryTree);
       setCategories(categoryTree);
     }
   }, [categoriesData]);
