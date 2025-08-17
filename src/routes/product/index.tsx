@@ -5,7 +5,7 @@ import DataTable from "@/components/product/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Plus, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -14,6 +14,7 @@ export const Route = createFileRoute("/product/")({
 });
 
 function RouteComponent() {
+  const navigate = useNavigate();
   const [pagination, setPagination] = useState({
     pageIndex: 0, // Tanstack Table uses 0-based indexing
     pageSize: 15,
@@ -42,6 +43,10 @@ function RouteComponent() {
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
     setPagination((prev) => ({ ...prev, pageIndex: 0 })); // 검색할 때 첫 페이지로 리셋
+  };
+
+  const handleRowClick = (product: any) => {
+    navigate({ to: "/product/$id", params: { id: product.id.toString() } });
   };
 
   return (
@@ -77,6 +82,7 @@ function RouteComponent() {
           setPagination={setPagination}
           isLoading={isLoading}
           serverPagination={productsData?.data?.pagination}
+          onRowClick={handleRowClick}
         />
       </div>
     </Container>

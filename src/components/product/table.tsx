@@ -40,6 +40,7 @@ interface DataTableProps<TData, TValue> {
   ) => void;
   isLoading?: boolean;
   serverPagination?: ServerPagination;
+  onRowClick?: (row: TData) => void;
 }
 export default function DataTable<TData, TValue>({
   columns,
@@ -49,6 +50,7 @@ export default function DataTable<TData, TValue>({
   setPagination,
   isLoading = false,
   serverPagination,
+  onRowClick,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -100,7 +102,15 @@ export default function DataTable<TData, TValue>({
             </TableRow>
           ) : (
             table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
+              <TableRow
+                key={row.id}
+                className={
+                  onRowClick
+                    ? "cursor-pointer hover:bg-gray-50 transition-colors"
+                    : ""
+                }
+                onClick={() => onRowClick?.(row.original)}
+              >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id} className="px-4 py-2">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

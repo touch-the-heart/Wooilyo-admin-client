@@ -16,6 +16,7 @@ import { Route as CategoryImport } from './routes/category'
 import { Route as IndexImport } from './routes/index'
 import { Route as ProductIndexImport } from './routes/product/index'
 import { Route as ProductCreateImport } from './routes/product/create'
+import { Route as ProductIdImport } from './routes/product/$id'
 
 // Create/Update Routes
 
@@ -49,6 +50,12 @@ const ProductCreateRoute = ProductCreateImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const ProductIdRoute = ProductIdImport.update({
+  id: '/product/$id',
+  path: '/product/$id',
+  getParentRoute: () => rootRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -74,6 +81,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupImport
       parentRoute: typeof rootRoute
     }
+    '/product/$id': {
+      id: '/product/$id'
+      path: '/product/$id'
+      fullPath: '/product/$id'
+      preLoaderRoute: typeof ProductIdImport
+      parentRoute: typeof rootRoute
+    }
     '/product/create': {
       id: '/product/create'
       path: '/product/create'
@@ -97,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/category': typeof CategoryRoute
   '/signup': typeof SignupRoute
+  '/product/$id': typeof ProductIdRoute
   '/product/create': typeof ProductCreateRoute
   '/product': typeof ProductIndexRoute
 }
@@ -105,6 +120,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/category': typeof CategoryRoute
   '/signup': typeof SignupRoute
+  '/product/$id': typeof ProductIdRoute
   '/product/create': typeof ProductCreateRoute
   '/product': typeof ProductIndexRoute
 }
@@ -114,20 +130,34 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/category': typeof CategoryRoute
   '/signup': typeof SignupRoute
+  '/product/$id': typeof ProductIdRoute
   '/product/create': typeof ProductCreateRoute
   '/product/': typeof ProductIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/category' | '/signup' | '/product/create' | '/product'
+  fullPaths:
+    | '/'
+    | '/category'
+    | '/signup'
+    | '/product/$id'
+    | '/product/create'
+    | '/product'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/category' | '/signup' | '/product/create' | '/product'
+  to:
+    | '/'
+    | '/category'
+    | '/signup'
+    | '/product/$id'
+    | '/product/create'
+    | '/product'
   id:
     | '__root__'
     | '/'
     | '/category'
     | '/signup'
+    | '/product/$id'
     | '/product/create'
     | '/product/'
   fileRoutesById: FileRoutesById
@@ -137,6 +167,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CategoryRoute: typeof CategoryRoute
   SignupRoute: typeof SignupRoute
+  ProductIdRoute: typeof ProductIdRoute
   ProductCreateRoute: typeof ProductCreateRoute
   ProductIndexRoute: typeof ProductIndexRoute
 }
@@ -145,6 +176,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CategoryRoute: CategoryRoute,
   SignupRoute: SignupRoute,
+  ProductIdRoute: ProductIdRoute,
   ProductCreateRoute: ProductCreateRoute,
   ProductIndexRoute: ProductIndexRoute,
 }
@@ -162,6 +194,7 @@ export const routeTree = rootRoute
         "/",
         "/category",
         "/signup",
+        "/product/$id",
         "/product/create",
         "/product/"
       ]
@@ -174,6 +207,9 @@ export const routeTree = rootRoute
     },
     "/signup": {
       "filePath": "signup.tsx"
+    },
+    "/product/$id": {
+      "filePath": "product/$id.tsx"
     },
     "/product/create": {
       "filePath": "product/create.tsx"
