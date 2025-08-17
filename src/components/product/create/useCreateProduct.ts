@@ -7,7 +7,6 @@ import { CreateProductSchema, FormData } from "./types";
 export function useCreateProduct() {
   const [loading, setLoading] = useState(false);
   const [productImages, setProductImages] = useState<File[]>([]);
-
   const form = useForm<FormData>({
     resolver: zodResolver(CreateProductSchema),
     defaultValues: {
@@ -31,6 +30,7 @@ export function useCreateProduct() {
   });
 
   const onSubmit = async (data: FormData) => {
+    console.log("!!!!!!", productImages);
     setLoading(true);
     const params = {
       product: {
@@ -46,6 +46,8 @@ export function useCreateProduct() {
           price: data.product.price,
         },
       ],
+      categoryIds: data.categoryIds,
+      images: data.images,
     };
 
     try {

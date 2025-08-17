@@ -39,6 +39,8 @@ export function ImageUploadSection({
   const [descriptionImages, setDescriptionImages] = useState<UploadedImage[]>(
     []
   );
+  // 전체 이미지 순서를 추적하는 상태 추가
+  const [totalImageCount, setTotalImageCount] = useState(0);
 
   // productImages 전체 업데이트 유틸리티 함수
   const updateProductImagesFromStates = useCallback(() => {
@@ -124,12 +126,17 @@ export function ImageUploadSection({
           return;
         }
 
-        const newUploadedImages: UploadedImage[] = newFiles.map((file) => ({
-          file,
-          isUploading: true,
-        }));
+        const newUploadedImages: UploadedImage[] = newFiles.map(
+          (file, index) => ({
+            file,
+            isUploading: true,
+            type: imageType,
+            displayOrder: totalImageCount + index,
+          })
+        );
 
         setImages((prev) => [...prev, ...newUploadedImages]);
+        setTotalImageCount((prev) => prev + newFiles.length);
 
         // 정책 함수를 사용하여 productImages 업데이트
         if (config.shouldUpdateProductImages) {
@@ -152,10 +159,28 @@ export function ImageUploadSection({
 
         try {
           await Promise.allSettled(uploadPromises);
-          const successfulUploads = images
-            .filter((img) => img.url && !img.isUploading)
-            .map((img) => img.url!);
-          form.setValue("images", successfulUploads);
+          // PostProductsData 형식에 맞춰서 저장
+          // useState setter를 사용해서 최신 상태를 가져옴
+          setMainImages((currentMainImages) => {
+            setDescriptionImages((currentDescriptionImages) => {
+              const allImages = [
+                ...currentMainImages,
+                ...currentDescriptionImages,
+              ];
+              const successfulImages = allImages
+                .filter((img) => img.url && !img.isUploading)
+                .sort((a, b) => a.displayOrder - b.displayOrder)
+                .map((img) => ({
+                  url: img.url!,
+                  displayOrder: img.displayOrder,
+                  type: img.type,
+                }));
+
+              form.setValue("images", successfulImages);
+              return currentDescriptionImages;
+            });
+            return currentMainImages;
+          });
         } catch (error) {
           console.error("Some uploads failed:", error);
         }
@@ -167,6 +192,9 @@ export function ImageUploadSection({
         form,
         uploadImageMutation,
         setProductImages,
+        totalImageCount,
+        mainImages,
+        descriptionImages,
       ]
     );
 
@@ -247,26 +275,40 @@ export function ImageUploadSection({
         const newImages = [...images];
         newImages.splice(index, 1);
         setImages(newImages);
+        setTotalImageCount((prev) => prev - 1);
 
         // productImages 전체 재동기화
-        if (config.shouldUpdateProductImages) {
-          // 상태 업데이트 후 productImages 재동기화
-          setTimeout(() => {
-            const mainFiles = (
-              imageType === "main" ? newImages : mainImages
-            ).map((img) => img.file);
-            const descriptionFiles = (
-              imageType === "description" ? newImages : descriptionImages
-            ).map((img) => img.file);
-            setProductImages([...mainFiles, ...descriptionFiles]);
-          }, 0);
+        const updatedProductImages = [...productImages];
+        const removedImage = images[index];
+        const imageIndex = updatedProductImages.findIndex(
+          (file) => file === removedImage.file
+        );
+        if (imageIndex !== -1) {
+          updatedProductImages.splice(imageIndex, 1);
+          setProductImages(updatedProductImages);
         }
 
-        const successfulUploads = newImages
-          .filter((img) => img.url && !img.isUploading)
-          .map((img) => img.url!);
+        // PostProductsData 형식에 맞춰서 저장
+        setMainImages((currentMainImages) => {
+          setDescriptionImages((currentDescriptionImages) => {
+            const allImages = [
+              ...currentMainImages,
+              ...currentDescriptionImages,
+            ];
+            const successfulImages = allImages
+              .filter((img) => img.url && !img.isUploading)
+              .sort((a, b) => a.displayOrder - b.displayOrder)
+              .map((img) => ({
+                url: img.url!,
+                displayOrder: img.displayOrder,
+                type: img.type,
+              }));
 
-        form.setValue("images", successfulUploads);
+            form.setValue("images", successfulImages);
+            return currentDescriptionImages;
+          });
+          return currentMainImages;
+        });
       },
       [
         imageType,
