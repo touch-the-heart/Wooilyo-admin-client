@@ -194,6 +194,9 @@ export function ImageUploadSection({
   const [descriptionImages, setDescriptionImages] = useState<UploadedImage[]>(
     []
   );
+  const [totalUploadedImages, setTotalUploadedImages] = useState<
+    UploadedImage[]
+  >([]);
 
   // 이미지 업로드 mutation
   const uploadImageMutation = useMutation({
