@@ -50,7 +50,6 @@ export function useCreateProduct() {
     };
 
     try {
-      const result = await getProducts();
       const res = await postProducts({ body: params });
     } catch (error) {
       console.error("Error creating product:", error);
