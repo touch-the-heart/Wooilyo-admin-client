@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "@tanstack/react-router";
 import { getProducts, postProducts } from "@/client/sdk.gen";
 import { CreateProductSchema, FormData } from "./types";
 
 export function useCreateProduct() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [productImages, setProductImages] = useState<File[]>([]);
   const form = useForm<FormData>({
@@ -51,6 +53,8 @@ export function useCreateProduct() {
 
     try {
       const res = await postProducts({ body: params });
+      // 성공시 제품 목록 페이지로 이동
+      navigate({ to: "/product" });
     } catch (error) {
       console.error("Error creating product:", error);
       alert("Failed to create product. Please try again.");
