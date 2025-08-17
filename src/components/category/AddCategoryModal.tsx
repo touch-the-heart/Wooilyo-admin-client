@@ -52,8 +52,8 @@ export function AddCategoryModal({
     const level = !parentId
       ? 1
       : categoryParents.find((c) => c.id.toString() === parentId)?.level === 1
-      ? 2
-      : 3;
+        ? 2
+        : 3;
     const newCategory = {
       key: name,
       name,
@@ -105,7 +105,6 @@ export function AddCategoryModal({
             <Select
               value={parentId || "none"}
               onValueChange={(value) => {
-                console.log(value);
                 setParentId(value === "none" ? null : value);
               }}
             >
@@ -115,8 +114,8 @@ export function AddCategoryModal({
                     ? categoryParents.find((c) => c.id.toString() === parentId)
                         ?.name
                     : parentId === "none"
-                    ? "없음 (최상위 카테고리)"
-                    : "상위 카테고리 선택"}
+                      ? "없음 (최상위 카테고리)"
+                      : "상위 카테고리 선택"}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent side="bottom" className="max-h-100">
