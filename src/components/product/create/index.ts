@@ -4,4 +4,5 @@ export { ImageUploadSection } from "./imageUpload/ImageUploadSection";
 export { CategorySection } from "./CategorySection";
 export { StatusSection } from "./StatusSection";
 export { useCreateProduct } from "./useCreateProduct";
+export { useUpdateProduct } from "./useUpdateProduct";
 export * from "./types";

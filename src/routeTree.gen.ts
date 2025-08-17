@@ -17,6 +17,7 @@ import { Route as IndexImport } from './routes/index'
 import { Route as ProductIndexImport } from './routes/product/index'
 import { Route as ProductCreateImport } from './routes/product/create'
 import { Route as ProductIdImport } from './routes/product/$id'
+import { Route as ProductEditIdImport } from './routes/product/edit.$id'
 
 // Create/Update Routes
 
@@ -53,6 +54,12 @@ const ProductCreateRoute = ProductCreateImport.update({
 const ProductIdRoute = ProductIdImport.update({
   id: '/product/$id',
   path: '/product/$id',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ProductEditIdRoute = ProductEditIdImport.update({
+  id: '/product/edit/$id',
+  path: '/product/edit/$id',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -102,6 +109,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductIndexImport
       parentRoute: typeof rootRoute
     }
+    '/product/edit/$id': {
+      id: '/product/edit/$id'
+      path: '/product/edit/$id'
+      fullPath: '/product/edit/$id'
+      preLoaderRoute: typeof ProductEditIdImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -114,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/product/$id': typeof ProductIdRoute
   '/product/create': typeof ProductCreateRoute
   '/product': typeof ProductIndexRoute
+  '/product/edit/$id': typeof ProductEditIdRoute
 }
 
 export interface FileRoutesByTo {
@@ -123,6 +138,7 @@ export interface FileRoutesByTo {
   '/product/$id': typeof ProductIdRoute
   '/product/create': typeof ProductCreateRoute
   '/product': typeof ProductIndexRoute
+  '/product/edit/$id': typeof ProductEditIdRoute
 }
 
 export interface FileRoutesById {
@@ -133,6 +149,7 @@ export interface FileRoutesById {
   '/product/$id': typeof ProductIdRoute
   '/product/create': typeof ProductCreateRoute
   '/product/': typeof ProductIndexRoute
+  '/product/edit/$id': typeof ProductEditIdRoute
 }
 
 export interface FileRouteTypes {
@@ -144,6 +161,7 @@ export interface FileRouteTypes {
     | '/product/$id'
     | '/product/create'
     | '/product'
+    | '/product/edit/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -152,6 +170,7 @@ export interface FileRouteTypes {
     | '/product/$id'
     | '/product/create'
     | '/product'
+    | '/product/edit/$id'
   id:
     | '__root__'
     | '/'
@@ -160,6 +179,7 @@ export interface FileRouteTypes {
     | '/product/$id'
     | '/product/create'
     | '/product/'
+    | '/product/edit/$id'
   fileRoutesById: FileRoutesById
 }
 
@@ -170,6 +190,7 @@ export interface RootRouteChildren {
   ProductIdRoute: typeof ProductIdRoute
   ProductCreateRoute: typeof ProductCreateRoute
   ProductIndexRoute: typeof ProductIndexRoute
+  ProductEditIdRoute: typeof ProductEditIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -179,6 +200,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProductIdRoute: ProductIdRoute,
   ProductCreateRoute: ProductCreateRoute,
   ProductIndexRoute: ProductIndexRoute,
+  ProductEditIdRoute: ProductEditIdRoute,
 }
 
 export const routeTree = rootRoute
@@ -196,7 +218,8 @@ export const routeTree = rootRoute
         "/signup",
         "/product/$id",
         "/product/create",
-        "/product/"
+        "/product/",
+        "/product/edit/$id"
       ]
     },
     "/": {
@@ -216,6 +239,9 @@ export const routeTree = rootRoute
     },
     "/product/": {
       "filePath": "product/index.tsx"
+    },
+    "/product/edit/$id": {
+      "filePath": "product/edit.$id.tsx"
     }
   }
 }

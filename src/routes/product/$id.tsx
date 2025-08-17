@@ -115,7 +115,9 @@ function ProductDetailComponent() {
             )}
           </Badge>
         </div>
-        <Button>제품 수정</Button>
+        <Link to="/product/edit/$id" params={{ id }}>
+          <Button>제품 수정</Button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
