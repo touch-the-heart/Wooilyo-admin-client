@@ -111,6 +111,8 @@ export function CategorySection({ form, categories }: CategorySectionProps) {
             setSelectedCategoryId(value);
             const selectedId = parseInt(value);
             const categoryHierarchy = findParentCategories(selectedId);
+            console.log("Selected category ID:", selectedId); // 디버깅용 로그
+            console.log("Category hierarchy:", categoryHierarchy); // 디버깅용 로그
             form.setValue("categoryIds", categoryHierarchy);
           }}
         >

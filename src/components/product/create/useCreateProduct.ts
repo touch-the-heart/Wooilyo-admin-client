@@ -31,6 +31,7 @@ export function useCreateProduct() {
 
   const onSubmit = async (data: FormData) => {
     console.log("!!!!!!", productImages);
+    console.log("Category IDs:", data.categoryIds); // 디버깅용 로그 추가
     setLoading(true);
     const params = {
       product: {
@@ -46,12 +47,13 @@ export function useCreateProduct() {
           price: data.product.price,
         },
       ],
-      categoryIds: data.categoryIds,
-      images: data.images,
+      categoryIds: data.categoryIds || [], // 빈 배열로 기본값 설정
+      images: data.images || [], // 빈 배열로 기본값 설정
     };
 
     try {
       console.log("Submitted data:", data);
+      console.log("API params:", params); // 디버깅용 로그 추가
       const result = await getProducts();
       console.log(result);
       const res = await postProducts({ body: params });
