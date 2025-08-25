@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -32,6 +32,18 @@ function getCategoryIndentation(category: Category) {
 export function CategorySection({ form, categories }: CategorySectionProps) {
   // 선택된 카테고리 ID를 추적하기 위한 상태 추가
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+
+  // 서버에서 받아온 기존 카테고리를 컴포넌트 상태로 초기화
+  useEffect(() => {
+    const formCategoryIds = form.watch("categoryIds");
+
+    // form.categoryIds가 있고 아직 선택된 카테고리가 없을 때만 실행
+    if (formCategoryIds && formCategoryIds.length > 0 && !selectedCategoryId) {
+      // 가장 하위 카테고리 ID (배열의 마지막 요소)를 선택
+      const lastCategoryId = formCategoryIds[formCategoryIds.length - 1];
+      setSelectedCategoryId(lastCategoryId.toString());
+    }
+  }, [form.watch("categoryIds"), selectedCategoryId]);
 
   // 선택된 카테고리 이름을 찾는 함수
   const getSelectedCategoryName = (categoryId: string): string => {
@@ -105,7 +117,6 @@ export function CategorySection({ form, categories }: CategorySectionProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         <Select
-          defaultValue="1"
           value={selectedCategoryId}
           onValueChange={(value) => {
             setSelectedCategoryId(value);
