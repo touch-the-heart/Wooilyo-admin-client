@@ -97,11 +97,28 @@ export function useUpdateProduct(productId: number) {
         path: { id: productId },
         body: params,
       });
+
+      // HTTP 에러 상태 코드가 오면 예외 발생시켜 catch로 처리
+      if (res.response.status >= 400) {
+        throw new Error(
+          (res.error as any)?.message ||
+            "Failed to update product. Please try again."
+        );
+      }
+
       // 성공시 제품 상세 페이지로 이동
       navigate({ to: "/product/$id", params: { id: productId.toString() } });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating product:", error);
-      alert("Failed to update product. Please try again.");
+
+      // 에러 메시지 추출
+      let errorMessage = "Failed to update product. Please try again.";
+
+      if (error?.message) {
+        errorMessage = error.message;
+      }
+
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
