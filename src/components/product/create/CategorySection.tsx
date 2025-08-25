@@ -35,15 +35,23 @@ export function CategorySection({ form, categories }: CategorySectionProps) {
 
   // 서버에서 받아온 기존 카테고리를 컴포넌트 상태로 초기화
   useEffect(() => {
-    const formCategoryIds = form.watch("categoryIds");
+    // form.reset() 완료를 기다리기 위해 비동기적으로 실행
+    const timer = setTimeout(() => {
+      const formCategoryIds = form.getValues("categoryIds");
+      // form.categoryIds가 있고 아직 선택된 카테고리가 없을 때만 실행
+      if (
+        formCategoryIds &&
+        formCategoryIds.length > 0 &&
+        !selectedCategoryId
+      ) {
+        // 가장 하위 카테고리 ID (배열의 마지막 요소)를 선택
+        const lastCategoryId = formCategoryIds[formCategoryIds.length - 1];
+        setSelectedCategoryId(lastCategoryId.toString());
+      }
+    }, 100); // 100ms 후에 실행
 
-    // form.categoryIds가 있고 아직 선택된 카테고리가 없을 때만 실행
-    if (formCategoryIds && formCategoryIds.length > 0 && !selectedCategoryId) {
-      // 가장 하위 카테고리 ID (배열의 마지막 요소)를 선택
-      const lastCategoryId = formCategoryIds[formCategoryIds.length - 1];
-      setSelectedCategoryId(lastCategoryId.toString());
-    }
-  }, [form.watch("categoryIds"), selectedCategoryId]);
+    return () => clearTimeout(timer);
+  }, [form, selectedCategoryId]);
 
   // 선택된 카테고리 이름을 찾는 함수
   const getSelectedCategoryName = (categoryId: string): string => {
