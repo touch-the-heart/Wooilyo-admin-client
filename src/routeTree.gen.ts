@@ -8,118 +8,50 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as CategoryRouteImport } from './routes/category'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProductIndexRouteImport } from './routes/product/index'
+import { Route as ProductCreateRouteImport } from './routes/product/create'
+import { Route as ProductIdRouteImport } from './routes/product/$id'
+import { Route as ProductEditIdRouteImport } from './routes/product/edit.$id'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as SignupImport } from './routes/signup'
-import { Route as CategoryImport } from './routes/category'
-import { Route as IndexImport } from './routes/index'
-import { Route as ProductIndexImport } from './routes/product/index'
-import { Route as ProductCreateImport } from './routes/product/create'
-import { Route as ProductIdImport } from './routes/product/$id'
-import { Route as ProductEditIdImport } from './routes/product/edit.$id'
-
-// Create/Update Routes
-
-const SignupRoute = SignupImport.update({
+const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const CategoryRoute = CategoryImport.update({
+const CategoryRoute = CategoryRouteImport.update({
   id: '/category',
   path: '/category',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const IndexRoute = IndexImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const ProductIndexRoute = ProductIndexImport.update({
+const ProductIndexRoute = ProductIndexRouteImport.update({
   id: '/product/',
   path: '/product/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const ProductCreateRoute = ProductCreateImport.update({
+const ProductCreateRoute = ProductCreateRouteImport.update({
   id: '/product/create',
   path: '/product/create',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const ProductIdRoute = ProductIdImport.update({
+const ProductIdRoute = ProductIdRouteImport.update({
   id: '/product/$id',
   path: '/product/$id',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const ProductEditIdRoute = ProductEditIdImport.update({
+const ProductEditIdRoute = ProductEditIdRouteImport.update({
   id: '/product/edit/$id',
   path: '/product/edit/$id',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-// Populate the FileRoutesByPath interface
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/category': {
-      id: '/category'
-      path: '/category'
-      fullPath: '/category'
-      preLoaderRoute: typeof CategoryImport
-      parentRoute: typeof rootRoute
-    }
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupImport
-      parentRoute: typeof rootRoute
-    }
-    '/product/$id': {
-      id: '/product/$id'
-      path: '/product/$id'
-      fullPath: '/product/$id'
-      preLoaderRoute: typeof ProductIdImport
-      parentRoute: typeof rootRoute
-    }
-    '/product/create': {
-      id: '/product/create'
-      path: '/product/create'
-      fullPath: '/product/create'
-      preLoaderRoute: typeof ProductCreateImport
-      parentRoute: typeof rootRoute
-    }
-    '/product/': {
-      id: '/product/'
-      path: '/product'
-      fullPath: '/product'
-      preLoaderRoute: typeof ProductIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/product/edit/$id': {
-      id: '/product/edit/$id'
-      path: '/product/edit/$id'
-      fullPath: '/product/edit/$id'
-      preLoaderRoute: typeof ProductEditIdImport
-      parentRoute: typeof rootRoute
-    }
-  }
-}
-
-// Create and export the route tree
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -130,7 +62,6 @@ export interface FileRoutesByFullPath {
   '/product': typeof ProductIndexRoute
   '/product/edit/$id': typeof ProductEditIdRoute
 }
-
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/category': typeof CategoryRoute
@@ -140,9 +71,8 @@ export interface FileRoutesByTo {
   '/product': typeof ProductIndexRoute
   '/product/edit/$id': typeof ProductEditIdRoute
 }
-
 export interface FileRoutesById {
-  __root__: typeof rootRoute
+  __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/category': typeof CategoryRoute
   '/signup': typeof SignupRoute
@@ -151,7 +81,6 @@ export interface FileRoutesById {
   '/product/': typeof ProductIndexRoute
   '/product/edit/$id': typeof ProductEditIdRoute
 }
-
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
@@ -182,7 +111,6 @@ export interface FileRouteTypes {
     | '/product/edit/$id'
   fileRoutesById: FileRoutesById
 }
-
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CategoryRoute: typeof CategoryRoute
@@ -191,6 +119,60 @@ export interface RootRouteChildren {
   ProductCreateRoute: typeof ProductCreateRoute
   ProductIndexRoute: typeof ProductIndexRoute
   ProductEditIdRoute: typeof ProductEditIdRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/category': {
+      id: '/category'
+      path: '/category'
+      fullPath: '/category'
+      preLoaderRoute: typeof CategoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product/': {
+      id: '/product/'
+      path: '/product'
+      fullPath: '/product'
+      preLoaderRoute: typeof ProductIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product/create': {
+      id: '/product/create'
+      path: '/product/create'
+      fullPath: '/product/create'
+      preLoaderRoute: typeof ProductCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product/$id': {
+      id: '/product/$id'
+      path: '/product/$id'
+      fullPath: '/product/$id'
+      preLoaderRoute: typeof ProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product/edit/$id': {
+      id: '/product/edit/$id'
+      path: '/product/edit/$id'
+      fullPath: '/product/edit/$id'
+      preLoaderRoute: typeof ProductEditIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -202,47 +184,6 @@ const rootRouteChildren: RootRouteChildren = {
   ProductIndexRoute: ProductIndexRoute,
   ProductEditIdRoute: ProductEditIdRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/",
-        "/category",
-        "/signup",
-        "/product/$id",
-        "/product/create",
-        "/product/",
-        "/product/edit/$id"
-      ]
-    },
-    "/": {
-      "filePath": "index.tsx"
-    },
-    "/category": {
-      "filePath": "category.tsx"
-    },
-    "/signup": {
-      "filePath": "signup.tsx"
-    },
-    "/product/$id": {
-      "filePath": "product/$id.tsx"
-    },
-    "/product/create": {
-      "filePath": "product/create.tsx"
-    },
-    "/product/": {
-      "filePath": "product/index.tsx"
-    },
-    "/product/edit/$id": {
-      "filePath": "product/edit.$id.tsx"
-    }
-  }
-}
-ROUTE_MANIFEST_END */

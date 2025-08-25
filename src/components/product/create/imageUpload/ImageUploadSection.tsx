@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 
@@ -41,6 +41,53 @@ export function ImageUploadSection({
   );
   // 전체 이미지 순서를 추적하는 상태 추가
   const [totalImageCount, setTotalImageCount] = useState(0);
+  // 초기화 완료 여부를 추적하는 상태 추가
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // 서버에서 받아온 기존 이미지들을 컴포넌트 상태로 초기화
+  useEffect(() => {
+    const formImages = form.watch("images");
+
+    // form.images가 있고 아직 초기화되지 않았을 때만 실행
+    if (formImages && formImages.length > 0 && !isInitialized) {
+      const mainImagesFromServer: UploadedImage[] = [];
+      const descriptionImagesFromServer: UploadedImage[] = [];
+
+      formImages.forEach((img, index) => {
+        // URL에서 파일명 추출 (더 안전한 방식)
+        const urlParts = img.url.split("/");
+        const fileName = urlParts[urlParts.length - 1] || "image.jpg";
+
+        // 더미 파일 생성 (실제 파일이 아닌 표시용)
+        const dummyFile = new File([""], fileName, { type: "image/jpeg" });
+
+        const uploadedImage: UploadedImage = {
+          file: dummyFile,
+          url: img.url,
+          isUploading: false,
+          type: img.type as "main" | "description",
+          displayOrder: img.displayOrder,
+        };
+
+        if (img.type === "main") {
+          mainImagesFromServer.push(uploadedImage);
+        } else if (img.type === "description") {
+          descriptionImagesFromServer.push(uploadedImage);
+        }
+      });
+
+      // displayOrder로 정렬
+      mainImagesFromServer.sort((a, b) => a.displayOrder - b.displayOrder);
+      descriptionImagesFromServer.sort(
+        (a, b) => a.displayOrder - b.displayOrder
+      );
+
+      setMainImages(mainImagesFromServer);
+      setDescriptionImages(descriptionImagesFromServer);
+      setTotalImageCount(formImages.length);
+      setIsInitialized(true);
+    }
+  }, [form.watch("images"), isInitialized]);
 
   // productImages 전체 업데이트 유틸리티 함수
   const updateProductImagesFromStates = useCallback(() => {

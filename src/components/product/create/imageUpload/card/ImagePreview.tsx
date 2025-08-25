@@ -8,10 +8,13 @@ interface ImagePreviewProps {
 }
 
 export function ImagePreview({ image, index, onRemove }: ImagePreviewProps) {
+  // 서버 이미지인지 로컬 이미지인지 판단
+  const imageSrc = image.url || URL.createObjectURL(image.file);
+
   return (
     <div className="relative group">
       <img
-        src={URL.createObjectURL(image.file)}
+        src={imageSrc}
         alt={`Product ${index + 1}`}
         className={`h-20 w-20 object-cover rounded ${
           image.isUploading ? "opacity-50" : ""

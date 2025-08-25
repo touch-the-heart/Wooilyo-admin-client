@@ -95,9 +95,7 @@ function UpdateProduct() {
             Back to Product Detail
           </Button>
         </Link>
-        <h1 className="text-3xl font-bold">
-          Edit Product: {productData.name} 개발중 ....
-        </h1>
+        <h1 className="text-3xl font-bold">제품 수정</h1>
       </div>
 
       <Form {...form}>
