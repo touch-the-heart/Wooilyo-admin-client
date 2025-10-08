@@ -35,8 +35,12 @@ function RootComponent() {
           sidebarOpen ? "ml-64" : "ml-0"
         }`}
       />
-      <ReactQueryDevtools position="left" />
-      <TanStackRouterDevtools position="bottom-left" />
+      {import.meta.env.DEV && (
+        <>
+          <ReactQueryDevtools position="left" />
+          <TanStackRouterDevtools position="bottom-left" />
+        </>
+      )}
     </div>
   );
 }
