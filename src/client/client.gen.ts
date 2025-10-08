@@ -23,6 +23,6 @@ export type CreateClientConfig<T extends DefaultClientOptions = ClientOptions> =
 
 export const client = createClient(
   createConfig<ClientOptions>({
-    baseUrl: "http://192.168.45.154:5000",
+    baseUrl: "https://api.wooilyotoujunnshop.com",
   })
 );

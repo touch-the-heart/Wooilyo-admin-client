@@ -20,7 +20,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http:localhost:5000",
+        target: "https://api.wooilyotoujunnshop.com",
         rewrite: (path) => path.replace(/^\/api/, ""),
         changeOrigin: true,
         secure: false,
